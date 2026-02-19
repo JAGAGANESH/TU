@@ -1,0 +1,45 @@
+name: Deploy Engagement Mania
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Inject token into HTML
+        run: |
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+
+      - name: Verify token
+        env:
+          SECRET_TOKEN: ${{ secrets.SUBMISSIONS_TOKEN }}
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $SECRET_TOKEN" \
+            https://api.github.com/user)
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Token invalid ($RESPONSE)"
+            exit 1
+          fi
+          echo "✅ Token valid"
+
+      - name: Commit injected file back to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add engagement-mania.html
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: inject token [skip ci]"
+          git push origin main
