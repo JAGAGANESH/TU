@@ -1,0 +1,45 @@
+name: Deploy Engagement Mania
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject token into HTML
+        run: |
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+
+      - name: Deploy all files to gh-pages branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Save the built files
+          mkdir /tmp/deploy
+          cp -r . /tmp/deploy/
+          
+          # Switch to gh-pages (create if doesn't exist)
+          git checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages
+
+          # Clear everything and copy fresh build
+          git rm -rf . --quiet 2>/dev/null || true
+          cp -r /tmp/deploy/. .
+          rm -rf .git /tmp/deploy
+
+          # Commit and push
+          git add -A
+          git commit -m "Deploy from main @ $(date '+%Y-%m-%d %H:%M:%S')" --allow-empty
+          git push origin gh-pages --force
