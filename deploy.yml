@@ -1,0 +1,56 @@
+name: Deploy Engagement Mania
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject token into HTML
+        run: |
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+
+      - name: Verify token
+        env:
+          SECRET_TOKEN: ${{ secrets.SUBMISSIONS_TOKEN }}
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $SECRET_TOKEN" \
+            https://api.github.com/user)
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Token invalid ($RESPONSE)"
+            exit 1
+          fi
+          echo "✅ Token valid"
+
+      - name: Push to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Copy files we want to deploy
+          mkdir -p /tmp/site
+          rsync -av --exclude='.git' --exclude='.github' . /tmp/site/
+
+          # Force push to gh-pages
+          git fetch origin gh-pages 2>/dev/null || true
+          git checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages
+
+          # Remove old files, copy new ones
+          git rm -rf . --quiet 2>/dev/null || true
+          rsync -av /tmp/site/ .
+
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S')"
+          git push origin gh-pages --force
