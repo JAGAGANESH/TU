@@ -18,11 +18,11 @@ jobs:
 
       - name: Inject token into HTML
         run: |
-          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN_V2 }}|g" engagement-mania-v8.html
 
       - name: Verify token
         env:
-          SECRET_TOKEN: ${{ secrets.SUBMISSIONS_TOKEN }}
+          SECRET_TOKEN: ${{ secrets.SUBMISSIONS_TOKEN_V2 }}
         run: |
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: token $SECRET_TOKEN" \
