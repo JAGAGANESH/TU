@@ -1,0 +1,38 @@
+name: Deploy Engagement Mania
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+
+      - name: Inject token into HTML
+        run: |
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+
+      - name: Verify injection worked
+        run: |
+          if grep -q "YOUR_GITHUB_TOKEN_HERE" engagement-mania.html; then
+            echo "❌ FAILED: Token placeholder still present — check secret name is exactly SUBMISSIONS_TOKEN"
+            exit 1
+          else
+            echo "✅ Token injected successfully"
+          fi
+
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .
+          token: ${{ secrets.GITHUB_TOKEN }}
+          clean: true
