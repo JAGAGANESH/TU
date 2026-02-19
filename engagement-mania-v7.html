@@ -566,11 +566,11 @@ async function saveSubmission(entry) {
   }
 
   // Check token is configured
-  if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE' || !GITHUB_TOKEN) {
-    console.error('GitHub token not configured');
-    showSubmitError('⚠️ GitHub token not set in the HTML file.');
-    return false;
-  }
+//  if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE' || !GITHUB_TOKEN) {
+ //   console.error('GitHub token not configured');
+  //  showSubmitError('⚠️ GitHub token not set in the HTML file.');
+ //   return false;
+ // }
 
   try {
     // 1. GET current file content + sha
