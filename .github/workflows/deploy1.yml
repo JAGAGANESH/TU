@@ -20,7 +20,7 @@ jobs:
 
       - name: Inject token into HTML
         run: |
-          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania-v7.html
 
       - name: Deploy all files to gh-pages branch
         run: |
