@@ -529,7 +529,7 @@ const COMPLETED_KEY = 'em_completed_v2';
 //     The deploy.yml workflow injects it automatically at build time.
 //     See SETUP.md for step-by-step instructions.
 // ============================================================
-const GITHUB_TOKEN  = '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';   // ← injected by GitHub Actions (never edit this line)
+const GITHUB_TOKEN  = 'YOUR_GITHUB_TOKEN_HERE';   // ← injected by GitHub Actions (never edit this line)
 const GITHUB_OWNER  = 'YOUR_GITHUB_USERNAME';      // ← replace: your GitHub username e.g. 'john'
 const GITHUB_REPO   = 'YOUR_REPO_NAME';            // ← replace: your repo name e.g. 'engagement-mania'
 const GITHUB_FILE   = 'submissions.txt';
@@ -566,7 +566,7 @@ async function saveSubmission(entry) {
   }
 
   // Check token is configured
-  if (GITHUB_TOKEN === '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' || !GITHUB_TOKEN) {
+  if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE' || !GITHUB_TOKEN) {
     console.error('GitHub token not configured');
     showSubmitError('⚠️ GitHub token not set in the HTML file.');
     return false;
