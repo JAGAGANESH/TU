@@ -3,6 +3,7 @@ name: Deploy Engagement Mania
 on:
   push:
     branches: [ main ]
+  workflow_dispatch: #
 
 jobs:
   deploy:
