@@ -18,7 +18,7 @@ jobs:
 
       - name: Inject token into HTML
         run: |
-          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania-v8.html
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN_V2 }}|g" engagement-mania-v8.html
 
       - name: Verify injection & test token against GitHub API
         run: |
