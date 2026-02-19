@@ -1,4 +1,4 @@
-name: Deploy Engagement Mania
+name: Deploy Engagement Mania v2
 
 on:
   push:
