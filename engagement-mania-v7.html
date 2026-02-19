@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Engagement Mania</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --card: #1a1a2e;
+    --accent1: #ff6b6b;
+    --accent2: #ffd93d;
+    --accent3: #6bcb77;
+    --accent4: #4d96ff;
+    --accent5: #c77dff;
+    --text: #f0f0ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== WELCOME ===== */
+  #welcome {
+    background: radial-gradient(ellipse at 50% 30%, #1a0533 0%, var(--bg) 70%);
+    text-align: center;
+    gap: 24px;
+  }
+
+  .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+  .star {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%; background: white;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite; opacity: 0;
+  }
+  @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 1; transform: scale(1.5); } }
+
+  .logo-ring {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: conic-gradient(var(--accent1), var(--accent2), var(--accent3), var(--accent4), var(--accent5), var(--accent1));
+    display: flex; align-items: center; justify-content: center;
+    animation: spin 6s linear infinite; position: relative; z-index: 1;
+  }
+  .logo-inner {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 52px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .welcome-title {
+    font-family: 'Boogaloo', cursive; font-size: 38px; line-height: 1.1;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    position: relative; z-index: 1;
+  }
+  .welcome-sub { color: rgba(240,240,255,0.6); font-size: 15px; position: relative; z-index: 1; }
+
+  .btn-start {
+    font-family: 'Boogaloo', cursive; font-size: 26px; letter-spacing: 2px;
+    padding: 16px 52px; border: none; border-radius: 50px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #1a0010; cursor: pointer; box-shadow: 0 0 30px rgba(255,107,107,0.5);
+    transition: transform 0.15s; position: relative; z-index: 1;
+  }
+  .btn-start:active { transform: scale(0.95); }
+
+  /* ===== HUB ===== */
+  #hub { background: var(--bg); gap: 16px; justify-content: flex-start; padding-top: 40px; }
+
+  .hub-title {
+    font-family: 'Boogaloo', cursive; font-size: 28px; text-align: center;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .games-grid { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+
+  .game-card {
+    background: var(--card); border-radius: 20px; padding: 18px;
+    display: flex; align-items: center; gap: 16px;
+    border: 2px solid transparent; cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .game-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--c1), var(--c2)); opacity: 0.07;
+  }
+  .game-card:not(.locked):active { transform: scale(0.98); }
+  .game-card.completed { border-color: var(--accent3); box-shadow: 0 0 15px rgba(107,203,119,0.3); }
+  .game-card.locked { opacity: 0.45; cursor: not-allowed; }
+  .game-card.unlocked { border-color: var(--c1); box-shadow: 0 0 20px var(--glow); animation: pulse-card 2s ease-in-out infinite; }
+
+  @keyframes pulse-card {
+    0%, 100% { box-shadow: 0 0 15px var(--glow); }
+    50% { box-shadow: 0 0 30px var(--glow); }
+  }
+
+  .game-icon { font-size: 40px; flex-shrink: 0; }
+  .game-info { flex: 1; }
+  .game-name { font-family: 'Boogaloo', cursive; font-size: 20px; }
+  .game-desc { font-size: 12px; color: rgba(240,240,255,0.5); }
+  .game-status { font-size: 22px; }
+
+  .key-reveal {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(107,203,119,0.15); border: 1px solid var(--accent3);
+    border-radius: 8px; padding: 3px 8px;
+    font-family: 'Boogaloo', cursive; font-size: 18px; color: var(--accent3);
+    margin-top: 4px; letter-spacing: 4px;
+  }
+  .key-reveal.hidden { display: none; }
+
+  .btn-boost-hub {
+    font-family: 'Boogaloo', cursive; font-size: 19px;
+    padding: 16px 24px; border: none; border-radius: 50px;
+    background: linear-gradient(135deg, #00c6ff, #0072ff, #7b2ff7);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite, glow-pulse 2s ease-in-out infinite;
+    color: #fff; cursor: pointer; width: 100%; letter-spacing: 1px;
+    transition: transform 0.15s;
+  }
+  .btn-boost-hub:active { transform: scale(0.97); }
+
+  @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 25px rgba(0,114,255,0.5); } 50% { box-shadow: 0 0 50px rgba(123,47,247,0.7); } }
+
+  /* ===== GAME SCREEN ===== */
+  #game-screen { background: var(--bg); justify-content: flex-start; padding-top: 20px; gap: 12px; }
+
+  .game-header { width: 100%; display: flex; align-items: center; gap: 12px; }
+  .btn-back {
+    background: var(--card); border: none; border-radius: 12px; color: var(--text);
+    font-size: 20px; width: 44px; height: 44px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .game-title-bar { font-family: 'Boogaloo', cursive; font-size: 22px; flex: 1; }
+
+  .game-area {
+    width: 100%; background: var(--card); border-radius: 24px; padding: 20px;
+    min-height: 400px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+
+  .btn-game {
+    font-family: 'Boogaloo', cursive; font-size: 20px; padding: 12px 32px;
+    border: none; border-radius: 40px; cursor: pointer; transition: transform 0.15s;
+  }
+  .btn-game:active { transform: scale(0.95); }
+
+  /* ===== SUCCESS OVERLAY ===== */
+  .success-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 100; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; text-align: center; padding: 30px;
+  }
+  .success-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  .success-emoji { font-size: 80px; animation: bounce 0.5s ease; }
+  @keyframes bounce { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  .success-title { font-family: 'Boogaloo', cursive; font-size: 36px; color: var(--accent2); }
+  .key-big {
+    font-family: 'Boogaloo', cursive; font-size: 52px; letter-spacing: 16px;
+    color: var(--accent3); background: rgba(107,203,119,0.15);
+    border: 2px solid var(--accent3); border-radius: 16px; padding: 16px 24px;
+  }
+  .key-label { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+  /* ===== SUBMIT SCREEN ===== */
+  #submit-screen {
+    background: radial-gradient(ellipse at 50% 20%, #0a1a33 0%, var(--bg) 70%);
+    gap: 0; justify-content: flex-start; padding-top: 30px;
+  }
+
+  .submit-header {
+    width: 100%; display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+
+  .submit-card {
+    width: 100%; background: var(--card); border-radius: 24px; padding: 24px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  .submit-title {
+    font-family: 'Boogaloo', cursive; font-size: 26px; text-align: center;
+    background: linear-gradient(135deg, #00c6ff, #7b2ff7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .submit-subtitle { font-size: 13px; color: rgba(240,240,255,0.5); text-align: center; margin-top: -10px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 13px; font-weight: 700; color: rgba(240,240,255,0.7); letter-spacing: 0.5px; }
+
+  .form-input {
+    background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px; color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 16px; padding: 12px 14px; outline: none; transition: border-color 0.2s;
+    width: 100%;
+  }
+  .form-input:focus { border-color: var(--accent4); }
+  .form-input.error { border-color: var(--accent1); animation: shake 0.3s; }
+  .form-input::placeholder { color: rgba(240,240,255,0.25); }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  .custom-select-wrap { position: relative; width: 100%; }
+  .form-select {
+    width: 100%; background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1); border-radius: 12px;
+    color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 16px; padding: 12px 40px 12px 14px; outline: none;
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .form-select:focus { border-color: var(--accent4); }
+  .form-select.error { border-color: var(--accent1); }
+  .form-select option { background: #1a1a2e; color: var(--text); }
+  .select-arrow {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--accent4); font-size: 18px; pointer-events: none;
+  }
+
+  /* Answer slots */
+  .answer-slots-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    width: 100%;
+    padding: 4px 0;
+  }
+
+  .ans-slot {
+    height: 48px; flex-shrink: 0;
+    border-bottom: 3px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Boogaloo', cursive; font-size: 20px; color: var(--accent2);
+    cursor: pointer; transition: border-color 0.2s, background 0.15s;
+    border-radius: 4px 4px 0 0; position: relative;
+  }
+  .ans-slot.empty { color: rgba(255,255,255,0.15); }
+  .ans-slot.selected-slot { border-bottom-color: var(--accent4); background: rgba(77,150,255,0.12); }
+  .ans-slot.filled { border-bottom-color: var(--accent2); }
+  .ans-slot.correct-slot { border-bottom-color: var(--accent3); color: var(--accent3); background: rgba(107,203,119,0.1); }
+  .ans-slot.wrong-slot  { border-bottom-color: var(--accent1); color: var(--accent1); background: rgba(255,107,107,0.1); }
+  .ans-slot-idx {
+    position: absolute; bottom: -16px; font-size: 10px;
+    color: rgba(255,255,255,0.25); font-family: 'Nunito', sans-serif;
+    white-space: nowrap; left: 50%; transform: translateX(-50%);
+  }
+
+  .letter-bank-label { font-size: 12px; color: rgba(240,240,255,0.4); margin-bottom: 8px; }
+
+  .letter-bank {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    min-height: 48px; padding: 4px;
+  }
+
+  .bank-letter {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(77,150,255,0.2), rgba(199,125,255,0.2));
+    border: 2px solid rgba(77,150,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Boogaloo', cursive; font-size: 22px; color: var(--text);
+    cursor: pointer; transition: transform 0.15s, border-color 0.15s, opacity 0.2s;
+    user-select: none;
+  }
+  .bank-letter:active { transform: scale(0.9); }
+  .bank-letter.selected-letter { border-color: var(--accent2); background: rgba(255,217,61,0.18); color: var(--accent2); transform: scale(1.1); }
+  .bank-letter.used { opacity: 0.2; pointer-events: none; }
+
+  .answer-feedback {
+    font-family: 'Boogaloo', cursive; font-size: 18px; text-align: center;
+    padding: 12px 16px; border-radius: 12px;
+  }
+  .answer-feedback.correct-fb { background: rgba(107,203,119,0.15); border: 1.5px solid var(--accent3); color: var(--accent3); }
+  .answer-feedback.wrong-fb   { background: rgba(255,107,107,0.1);  border: 1.5px solid var(--accent1); color: var(--accent1); }
+  .answer-feedback.hidden { display: none; }
+
+  .keys-hint {
+    font-size: 12px; color: rgba(240,240,255,0.4); text-align: center; line-height: 1.5;
+  }
+
+  .btn-submit {
+    font-family: 'Boogaloo', cursive; font-size: 22px; padding: 16px;
+    border: none; border-radius: 50px; width: 100%;
+    background: linear-gradient(135deg, #00c6ff, #0072ff, #7b2ff7);
+    color: white; cursor: pointer; letter-spacing: 1px;
+    box-shadow: 0 0 25px rgba(0,114,255,0.4); transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn-submit:active { transform: scale(0.97); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ===== SUBMITTED SCREEN ===== */
+  #submitted-screen {
+    background: radial-gradient(ellipse at 50% 40%, #0a2a0a 0%, var(--bg) 70%);
+    gap: 20px; text-align: center;
+  }
+  .submitted-icon { font-size: 90px; animation: bounce 0.6s ease; }
+  .submitted-title { font-family: 'Boogaloo', cursive; font-size: 34px; color: var(--accent3); }
+  .submitted-sub { font-size: 15px; color: rgba(240,240,255,0.6); line-height: 1.6; }
+  .submitted-rank {
+    font-family: 'Boogaloo', cursive; font-size: 22px;
+    background: rgba(255,217,61,0.12); border: 2px solid var(--accent2);
+    border-radius: 16px; padding: 14px 28px; color: var(--accent2);
+  }
+
+  /* ===== GAME STYLES ===== */
+  #tap-game .tap-target {
+    width: 130px; height: 130px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent1), #ff3366);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 50px; cursor: pointer; box-shadow: 0 0 30px rgba(255,107,107,0.5);
+    transition: transform 0.1s; user-select: none;
+  }
+  #tap-game .tap-target:active { transform: scale(0.9); }
+  .progress-bar { width: 100%; height: 18px; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--accent1), var(--accent2)); transition: width 0.15s; }
+  .tap-count { font-family: 'Boogaloo', cursive; font-size: 48px; }
+
+  .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+  .mem-card {
+    aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 26px; cursor: pointer; transition: transform 0.3s;
+    position: relative; transform-style: preserve-3d;
+  }
+  .mem-card.flipped { transform: rotateY(180deg); }
+  .mem-card .front, .mem-card .back {
+    position: absolute; inset: 0; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    backface-visibility: hidden; font-size: 26px;
+  }
+  .mem-card .front { background: linear-gradient(135deg, #2a2a4a, #1a1a2e); }
+  .mem-card .back { background: linear-gradient(135deg, var(--accent4), var(--accent5)); transform: rotateY(180deg); }
+  .mem-card.matched .front { background: linear-gradient(135deg, var(--accent3), #2d8c3c); }
+  .mem-card.matched { pointer-events: none; transform: rotateY(180deg); }
+
+  .math-problem { font-family: 'Boogaloo', cursive; font-size: 52px; text-align: center; }
+  .math-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+  .math-opt {
+    font-family: 'Boogaloo', cursive; font-size: 28px; padding: 18px;
+    border: 2px solid var(--accent4); border-radius: 16px;
+    background: rgba(77,150,255,0.15); color: var(--text); cursor: pointer; transition: transform 0.1s;
+  }
+  .math-opt:active { transform: scale(0.95); }
+  .math-opt.correct { background: rgba(107,203,119,0.3); border-color: var(--accent3); }
+  .math-opt.wrong { background: rgba(255,107,107,0.3); border-color: var(--accent1); }
+  .math-score { font-family: 'Boogaloo', cursive; font-size: 24px; color: var(--accent2); }
+
+  .scramble-word { font-family: 'Boogaloo', cursive; font-size: 40px; letter-spacing: 8px; color: var(--accent2); }
+  .scramble-hint { font-size: 13px; color: rgba(240,240,255,0.5); }
+  .scramble-input {
+    width: 100%; background: rgba(255,255,255,0.08); border: 2px solid var(--accent5);
+    border-radius: 12px; color: var(--text); font-family: 'Boogaloo', cursive;
+    font-size: 28px; padding: 14px; text-align: center; letter-spacing: 4px; outline: none;
+  }
+  .scramble-input.correct { border-color: var(--accent3); background: rgba(107,203,119,0.1); }
+  .scramble-input.wrong { border-color: var(--accent1); animation: shake 0.3s; }
+  .scramble-progress { font-family: 'Boogaloo', cursive; font-size: 20px; }
+
+  .reaction-arena {
+    width: 100%; min-height: 260px; border-radius: 20px;
+    background: rgba(255,255,255,0.04); border: 2px dashed rgba(255,255,255,0.1);
+    position: relative; overflow: hidden; cursor: pointer;
+  }
+  .reaction-dot {
+    position: absolute; width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    box-shadow: 0 0 20px rgba(255,217,61,0.5); animation: pop-in 0.2s ease; cursor: pointer;
+  }
+  @keyframes pop-in { from { transform: scale(0); } to { transform: scale(1); } }
+  .reaction-score { font-family: 'Boogaloo', cursive; font-size: 36px; }
+
+  .confetti-piece {
+    position: fixed; width: 10px; height: 10px; border-radius: 2px;
+    animation: confetti-fall var(--dur) linear forwards; z-index: 200; pointer-events: none;
+  }
+  @keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="stars" id="stars"></div>
+
+  <!-- WELCOME -->
+  <div id="welcome" class="screen active">
+    <div class="logo-ring"><div class="logo-inner">🎮</div></div>
+    <h1 class="welcome-title">Welcome to<br>Engagement Mania</h1>
+    <p class="welcome-sub">5 games · collect 10 letters · submit your code</p>
+    <button class="btn-start" onclick="startGame()">START GAME</button>
+  </div>
+
+  <!-- HUB -->
+  <div id="hub" class="screen">
+    <h2 class="hub-title">🎯 Choose Your Game</h2>
+    <div class="games-grid" id="games-grid"></div>
+    <div id="boost-btn-wrap" style="width:100%;display:none;margin-top:4px">
+      <button class="btn-boost-hub" onclick="showSubmit()">🚀 Boost up your Engagement Score</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <button class="btn-back" onclick="goHub()">←</button>
+      <span class="game-title-bar" id="game-title-bar">Game</span>
+    </div>
+    <div class="game-area" id="game-area"></div>
+  </div>
+
+  <!-- SUBMIT SCREEN -->
+  <div id="submit-screen" class="screen">
+    <div class="submit-header">
+      <button class="btn-back" onclick="goHub()">←</button>
+      <span style="font-family:'Boogaloo',cursive;font-size:20px;flex:1">🚀 Submit Your Score</span>
+    </div>
+    <div class="submit-card">
+      <div class="submit-title">Boost your Engagement Score!</div>
+      <div class="submit-subtitle">Enter your details and the letters you collected from each game</div>
+
+      <div class="form-group">
+        <label class="form-label">👤 Your Name</label>
+        <input class="form-input" id="inp-name" placeholder="Enter your full name" type="text">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">👥 Team Name</label>
+        <div class="custom-select-wrap">
+          <select class="form-select" id="inp-team">
+            <option value="" disabled selected>Select your team</option>
+            <option value="Team A">Team A</option>
+            <option value="Team B">Team B</option>
+            <option value="Team C">Team C</option>
+            <option value="Team R">Team R</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🔑 Arrange Your Keys</label>
+        <div class="keys-hint">Tap a shuffled letter, then tap the blank to place it. Fill all 10 slots with the correct answer!</div>
+        <div style="height:10px"></div>
+
+        <!-- Answer slots row -->
+        <div class="answer-slots-row" style="margin-bottom:20px" id="answer-slots"></div>
+
+        <div style="height:14px"></div>
+
+        <!-- Shuffled letter bank -->
+        <div class="letter-bank-label">Your collected letters (shuffled):</div>
+        <div class="letter-bank" id="letter-bank"></div>
+      </div>
+
+      <div id="answer-feedback" class="answer-feedback hidden"></div>
+      <button class="btn-submit hidden" id="btn-submit" onclick="submitScore()">Submit Answer 🎯</button>
+    </div>
+  </div>
+
+  <!-- SUBMITTED -->
+  <div id="submitted-screen" class="screen">
+    <div class="submitted-icon">🏆</div>
+    <div class="submitted-title">Submitted!</div>
+    <div class="submitted-sub">Your engagement score has been boosted.<br>Check the leaderboard to see your rank!</div>
+    <div class="submitted-rank" id="submitted-rank">🥇 You're #1 on the board!</div>
+    <button class="btn-game" style="background:linear-gradient(135deg,var(--accent3),#2d8c3c);color:#0d1a0d;margin-top:4px" onclick="resetAll()">Play Again 🔄</button>
+  </div>
+
+  <!-- SUCCESS OVERLAY -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-emoji" id="s-emoji">🎉</div>
+    <div class="success-title" id="s-title">Game Complete!</div>
+    <div class="key-label">You unlocked the key:</div>
+    <div class="key-big" id="s-key">AB</div>
+    <button class="btn-game" style="background:linear-gradient(135deg,var(--accent3),#2d8c3c);color:#0d1a0d" onclick="closeSuccess()">Collect Key →</button>
+  </div>
+</div>
+
+<script>
+// Keys per game (2 letters each)
+const GAMES = [
+  { id:0, name:"Tap Rush",      icon:"👆", desc:"Tap 20 times fast!",      color:"#ff6b6b", c2:"#ff3366", glow:"rgba(255,107,107,0.3)", keys:["T","A"] },
+  { id:1, name:"Memory Match",  icon:"🧠", desc:"Match all the pairs!",    color:"#4d96ff", c2:"#6b4eff", glow:"rgba(77,150,255,0.3)",  keys:["M","E"] },
+  { id:2, name:"Math Blitz",    icon:"➕", desc:"Answer 5 math problems!", color:"#ffd93d", c2:"#ff9f1c", glow:"rgba(255,217,61,0.3)",  keys:["N","I"] },
+  { id:3, name:"Word Scramble", icon:"📝", desc:"Unscramble 3 words!",     color:"#c77dff", c2:"#9d4edd", glow:"rgba(199,125,255,0.3)", keys:["A","C"] },
+  { id:4, name:"Reaction Test", icon:"⚡", desc:"Tap 8 targets fast!",     color:"#6bcb77", c2:"#2d8c3c", glow:"rgba(107,203,119,0.3)", keys:["G","O"] },
+];
+
+const COMPLETED_KEY = 'em_completed_v2';
+
+// ============================================================
+// ✅ FILL IN YOUR GITHUB DETAILS BELOW
+// ⚠️  DO NOT paste your real token here — it will be
+//     auto-revoked by GitHub when pushed to a public repo.
+//     Instead, add it as a GitHub Secret named SUBMISSIONS_TOKEN
+//     The deploy.yml workflow injects it automatically at build time.
+//     See SETUP.md for step-by-step instructions.
+// ============================================================
+const GITHUB_TOKEN  = 'YOUR_GITHUB_TOKEN_HERE';   // ← injected by GitHub Actions (never edit this line)
+const GITHUB_OWNER  = 'jagaganesh';      // ← replace: your GitHub username e.g. 'john'
+const GITHUB_REPO   = 'TU';            // ← replace: your repo name e.g. 'engagement-mania'
+const GITHUB_FILE   = 'submissions.txt';
+// ============================================================
+
+let completed = JSON.parse(localStorage.getItem(COMPLETED_KEY) || '[]');
+let currentGame = null;
+
+function saveCompleted() { localStorage.setItem(COMPLETED_KEY, JSON.stringify(completed)); }
+
+async function saveSubmission(entry) {
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+  const headers = {
+    'Authorization': `token ${GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json'
+  };
+
+  // Format the new line
+  const now = new Date();
+  const time = now.toLocaleString('en-GB', { hour12: false });
+  const newLine = `${time} | ${entry.name} | ${entry.team} | ${entry.answer}\n`;
+
+  // Safe base64 encode — handles all unicode characters
+  function toBase64(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+      (_, p1) => String.fromCharCode('0x' + p1)));
+  }
+
+  // Safe base64 decode
+  function fromBase64(b64) {
+    return decodeURIComponent(atob(b64).split('').map(
+      c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  }
+
+  // Check token is configured
+//  if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE' || !GITHUB_TOKEN) {
+ //   console.error('GitHub token not configured');
+  //  showSubmitError('⚠️ GitHub token not set in the HTML file.');
+ //   return false;
+ // }
+
+  try {
+    // 1. GET current file content + sha
+    let existingContent = '';
+    let sha = null;
+
+    const getRes = await fetch(apiUrl, { headers });
+
+    if (getRes.status === 401) {
+      showSubmitError('❌ GitHub token is invalid or expired. Please update it.');
+      return false;
+    }
+    if (getRes.status === 404) {
+      // File doesn't exist yet — will be created fresh
+      existingContent = '';
+      sha = null;
+    } else if (getRes.ok) {
+      const fileData = await getRes.json();
+      sha = fileData.sha;
+      // GitHub returns base64 with newlines inside — strip them first
+      existingContent = fromBase64(fileData.content.replace(/\n/g, ''));
+    } else {
+      throw new Error(`GET failed: ${getRes.status} ${getRes.statusText}`);
+    }
+
+    // 2. Append new line
+    const updatedContent = existingContent + newLine;
+
+    const body = {
+      message: `submission: ${entry.name} - ${time}`,
+      content: toBase64(updatedContent),
+      ...(sha ? { sha } : {})
+    };
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+
+    if (putRes.status === 409) {
+      // SHA conflict — someone else submitted at the same time, retry once
+      console.warn('SHA conflict, retrying...');
+      await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+      return saveSubmission(entry); // retry
+    }
+
+    if (!putRes.ok) {
+      const errData = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT failed: ${putRes.status} — ${errData.message || putRes.statusText}`);
+    }
+
+    return true;
+
+  } catch(e) {
+    console.error('Submission error:', e);
+    showSubmitError(`❌ Could not save: ${e.message}`);
+    // Fallback: save locally
+    const local = JSON.parse(localStorage.getItem('em_local_subs') || '[]');
+    local.push({ ...entry, newLine });
+    localStorage.setItem('em_local_subs', JSON.stringify(local));
+    return false;
+  }
+}
+
+function showSubmitError(msg) {
+  // Show error on the submit screen if visible, else console
+  const fb = document.getElementById('answer-feedback');
+  if (fb) {
+    fb.className = 'answer-feedback wrong-fb';
+    fb.textContent = msg;
+  }
+}
+
+// ===== SCREENS =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() { renderHub(); showScreen('hub'); }
+
+function goHub() { renderHub(); showScreen('hub'); }
+
+function renderHub() {
+  const grid = document.getElementById('games-grid');
+  grid.innerHTML = '';
+  GAMES.forEach((g, i) => {
+    const done = completed.includes(i);
+    const locked = i > 0 && !completed.includes(i-1);
+    const card = document.createElement('div');
+    card.className = `game-card ${done ? 'completed' : locked ? 'locked' : 'unlocked'}`;
+    card.style.setProperty('--c1', g.color);
+    card.style.setProperty('--c2', g.c2);
+    card.style.setProperty('--glow', g.glow);
+    const keyStr = done ? g.keys.join(' · ') : '? · ?';
+    card.innerHTML = `
+      <div class="game-icon">${g.icon}</div>
+      <div class="game-info">
+        <div class="game-name">${g.name}</div>
+        <div class="game-desc">${g.desc}</div>
+        <div class="key-reveal ${done ? '' : 'hidden'}">🔑 ${keyStr}</div>
+      </div>
+      <div class="game-status">${done ? '✅' : locked ? '🔒' : '▶️'}</div>
+    `;
+    if (!locked) card.onclick = () => launchGame(i);
+    grid.appendChild(card);
+  });
+
+  const allDone = completed.length === 5;
+  document.getElementById('boost-btn-wrap').style.display = allDone ? 'block' : 'none';
+}
+
+// ===== SUBMIT SCREEN =====
+const CORRECT_ANSWER = ['T','A','M','E','N','I','A','C','G','O'];
+
+let slotValues = Array(10).fill(null);   // what letter is in each slot
+let selectedLetter = null;               // { el, letter, bankIdx }
+let selectedSlot = null;                 // slot index
+let shuffledLetters = [];                // shuffled copy for the bank
+let bankUsed = Array(10).fill(false);    // which bank letters are placed
+
+function showSubmit() {
+  // Reset state
+  slotValues = Array(10).fill(null);
+  selectedLetter = null;
+  selectedSlot = null;
+  bankUsed = Array(10).fill(false);
+
+  // Shuffle the collected letters
+  shuffledLetters = [...CORRECT_ANSWER].sort(() => Math.random() - 0.5);
+
+  buildSlotsUI();
+  buildBankUI();
+  document.getElementById('answer-feedback').className = 'answer-feedback hidden';
+  document.getElementById('btn-submit').className = 'btn-submit hidden';
+
+  // Auto-select slot 0 so user can just tap letters directly
+  selectedSlot = 0;
+  const firstSlot = document.querySelector('.ans-slot[data-idx="0"]');
+  if (firstSlot) firstSlot.classList.add('selected-slot');
+
+  showScreen('submit-screen');
+}
+
+function buildSlotsUI() {
+  const row = document.getElementById('answer-slots');
+  const gameLabels = ['👆','👆','🧠','🧠','➕','➕','📝','📝','⚡','⚡'];
+  row.innerHTML = '';
+  for (let i = 0; i < CORRECT_ANSWER.length; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'ans-slot empty';
+    slot.dataset.idx = i;
+
+    const charSpan = document.createElement('span');
+    charSpan.className = 'slot-char';
+    charSpan.textContent = '_';
+
+    const idxSpan = document.createElement('span');
+    idxSpan.className = 'ans-slot-idx';
+    idxSpan.textContent = gameLabels[i];
+
+    slot.appendChild(charSpan);
+    slot.appendChild(idxSpan);
+    slot.onclick = () => onSlotClick(i);
+    row.appendChild(slot);
+  }
+}
+
+function buildBankUI() {
+  const bank = document.getElementById('letter-bank');
+  bank.innerHTML = '';
+  shuffledLetters.forEach((letter, i) => {
+    const el = document.createElement('div');
+    el.className = 'bank-letter';
+    el.textContent = letter;
+    el.dataset.bi = i;
+    el.onclick = () => onBankClick(i, el);
+    bank.appendChild(el);
+  });
+}
+
+function onBankClick(bi, el) {
+  if (bankUsed[bi]) return;
+
+  // Deselect previous
+  if (selectedLetter) {
+    selectedLetter.el.classList.remove('selected-letter');
+  }
+
+  if (selectedLetter && selectedLetter.bi === bi) {
+    // Toggle off
+    selectedLetter = null;
+  } else {
+    selectedLetter = { el, letter: shuffledLetters[bi], bi };
+    el.classList.add('selected-letter');
+
+    // If a slot is already selected, place immediately
+    if (selectedSlot !== null) {
+      placeLetterInSlot(selectedSlot);
+      return;
+    }
+  }
+}
+
+function onSlotClick(idx) {
+  // If slot has a letter, remove it back to bank
+  if (slotValues[idx] !== null) {
+    const { bi } = slotValues[idx];
+    bankUsed[bi] = false;
+    // Re-enable bank letter
+    const bankEl = document.querySelector(`.bank-letter[data-bi="${bi}"]`);
+    if (bankEl) bankEl.classList.remove('used');
+
+    slotValues[idx] = null;
+    updateSlotUI(idx, null);
+    checkAnswer();
+    return;
+  }
+
+  // No letter selected yet — mark slot as selected target
+  if (!selectedLetter) {
+    // Highlight slot
+    document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('selected-slot'));
+    const slotEl = document.querySelector(`.ans-slot[data-idx="${idx}"]`);
+    slotEl.classList.add('selected-slot');
+    selectedSlot = idx;
+    return;
+  }
+
+  placeLetterInSlot(idx);
+}
+
+function placeLetterInSlot(idx) {
+  if (!selectedLetter) return;
+
+  slotValues[idx] = { letter: selectedLetter.letter, bi: selectedLetter.bi };
+  bankUsed[selectedLetter.bi] = true;
+
+  selectedLetter.el.classList.remove('selected-letter');
+  selectedLetter.el.classList.add('used');
+  selectedLetter = null;
+
+  document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('selected-slot'));
+
+  updateSlotUI(idx, slotValues[idx].letter);
+  checkAnswer();
+
+  // Auto-advance: find the next empty slot after idx
+  const nextEmpty = slotValues.findIndex((v, i) => i > idx && v === null);
+  if (nextEmpty !== -1) {
+    selectedSlot = nextEmpty;
+    const nextEl = document.querySelector(`.ans-slot[data-idx="${nextEmpty}"]`);
+    if (nextEl) nextEl.classList.add('selected-slot');
+  } else {
+    // Wrap from beginning if any earlier slots are empty
+    const firstEmpty = slotValues.findIndex(v => v === null);
+    if (firstEmpty !== -1) {
+      selectedSlot = firstEmpty;
+      const firstEl = document.querySelector(`.ans-slot[data-idx="${firstEmpty}"]`);
+      if (firstEl) firstEl.classList.add('selected-slot');
+    } else {
+      selectedSlot = null;
+    }
+  }
+}
+
+function updateSlotUI(idx, letter) {
+  const slot = document.querySelector(`.ans-slot[data-idx="${idx}"]`);
+  const span = slot.querySelector('.slot-char');
+  if (letter) {
+    span.textContent = letter;
+    slot.classList.remove('empty', 'selected-slot', 'correct-slot', 'wrong-slot');
+    slot.classList.add('filled');
+  } else {
+    span.textContent = '_';
+    slot.classList.remove('filled', 'correct-slot', 'wrong-slot');
+    slot.classList.add('empty');
+  }
+}
+
+function checkAnswer() {
+  const filled = slotValues.every(v => v !== null);
+  const fb = document.getElementById('answer-feedback');
+  const btnSubmit = document.getElementById('btn-submit');
+
+  if (!filled) {
+    fb.className = 'answer-feedback hidden';
+    btnSubmit.className = 'btn-submit hidden';
+    // Reset slot colours
+    document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('correct-slot','wrong-slot'));
+    return;
+  }
+
+  // Compare
+  let allCorrect = true;
+  slotValues.forEach((v, i) => {
+    const slot = document.querySelector(`.ans-slot[data-idx="${i}"]`);
+    slot.classList.remove('correct-slot','wrong-slot');
+    if (v.letter === CORRECT_ANSWER[i]) {
+      slot.classList.add('correct-slot');
+    } else {
+      slot.classList.add('wrong-slot');
+      allCorrect = false;
+    }
+  });
+
+  if (allCorrect) {
+    fb.className = 'answer-feedback correct-fb';
+    fb.textContent = '✅ Perfect! All keys are correct!';
+    btnSubmit.className = 'btn-submit';
+    // Pulse animation on submit button
+    btnSubmit.style.animation = 'none';
+    void btnSubmit.offsetWidth;
+    btnSubmit.style.animation = '';
+  } else {
+    fb.className = 'answer-feedback wrong-fb';
+    fb.textContent = '❌ Some keys are wrong — keep trying!';
+    btnSubmit.className = 'btn-submit hidden';
+  }
+}
+
+async function submitScore() {
+  const name = document.getElementById('inp-name').value.trim();
+  const team = document.getElementById('inp-team').value;
+
+  let valid = true;
+  if (!name) {
+    const el = document.getElementById('inp-name');
+    el.classList.add('error'); setTimeout(() => el.classList.remove('error'), 600);
+    valid = false;
+  }
+  if (!team) {
+    const el = document.getElementById('inp-team');
+    el.classList.add('error'); setTimeout(() => el.classList.remove('error'), 600);
+    valid = false;
+  }
+  if (!valid) return;
+
+  const answer = slotValues.map(v => v.letter).join('');
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Saving... ⏳';
+
+  // Clear any previous feedback
+  const fb = document.getElementById('answer-feedback');
+  fb.className = 'answer-feedback hidden';
+
+  const entry = { name, team, answer, timestamp: Date.now(), timeStr: new Date().toLocaleString() };
+
+  const ok = await saveSubmission(entry);
+
+  if (ok) {
+    spawnConfetti();
+    showScreen('submitted-screen');
+  } else {
+    // Error already shown by showSubmitError — re-enable button
+    btn.disabled = false;
+    btn.textContent = 'Retry Submit 🔄';
+  }
+}
+
+function resetAll() {
+  completed = [];
+  saveCompleted();
+  renderHub();
+  showScreen('hub');
+}
+
+// ===== LAUNCH GAME =====
+function launchGame(id) {
+  currentGame = id;
+  const g = GAMES[id];
+  document.getElementById('game-title-bar').textContent = g.icon + ' ' + g.name;
+  const area = document.getElementById('game-area');
+  area.innerHTML = '';
+  showScreen('game-screen');
+  [buildTap, buildMemory, buildMath, buildScramble, buildReaction][id](area, () => onGameComplete(id));
+}
+
+function onGameComplete(id) {
+  if (!completed.includes(id)) { completed.push(id); saveCompleted(); }
+  const g = GAMES[id];
+  document.getElementById('s-emoji').textContent = ['🎉','🧠','✏️','📖','⚡'][id];
+  document.getElementById('s-title').textContent = g.name + ' Complete!';
+  document.getElementById('s-key').textContent = g.keys.join('  ');
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  renderHub();
+  showScreen('hub');
+}
+
+// ===== GAME 1: TAP RUSH =====
+function buildTap(area, done) {
+  const GOAL = 20; let count = 0;
+  area.innerHTML = `
+    <div style="font-size:16px;color:rgba(240,240,255,0.6)">Tap the button ${GOAL} times!</div>
+    <div class="tap-count" id="tap-count">0</div>
+    <div class="progress-bar"><div class="progress-fill" id="tap-bar" style="width:0%"></div></div>
+    <div id="tap-game"><div class="tap-target" id="tap-btn">👆</div></div>`;
+  document.getElementById('tap-btn').onclick = () => {
+    count++;
+    document.getElementById('tap-count').textContent = count;
+    document.getElementById('tap-bar').style.width = (count/GOAL*100)+'%';
+    const btn = document.getElementById('tap-btn');
+    btn.style.transform = 'scale(0.88)';
+    setTimeout(() => btn.style.transform = '', 80);
+    if (count >= GOAL) { btn.style.pointerEvents='none'; setTimeout(done, 400); }
+  };
+}
+
+// ===== GAME 2: MEMORY MATCH =====
+function buildMemory(area, done) {
+  const emojis = ['🍎','🍌','🍇','🍓','🦊','🐸','🌈','⭐'];
+  let cards = [...emojis, ...emojis].sort(() => Math.random()-0.5);
+  let flipped = [], matched = 0, lock = false;
+  area.innerHTML = `
+    <div style="font-size:15px;color:rgba(240,240,255,0.6)">Match all the pairs!</div>
+    <div style="font-family:'Boogaloo';font-size:20px;color:var(--accent3)" id="mem-pairs">Pairs: 0 / 8</div>
+    <div class="memory-grid" id="mem-grid"></div>`;
+  const grid = document.getElementById('mem-grid');
+  cards.forEach((emoji) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.emoji = emoji;
+    card.innerHTML = `<div class="front">?</div><div class="back">${emoji}</div>`;
+    card.onclick = () => {
+      if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped'); flipped.push(card);
+      if (flipped.length === 2) {
+        lock = true;
+        if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
+          flipped.forEach(c => { c.classList.add('matched'); c.querySelector('.front').textContent = c.dataset.emoji; });
+          matched++; document.getElementById('mem-pairs').textContent = `Pairs: ${matched} / 8`;
+          flipped = []; lock = false;
+          if (matched === 8) setTimeout(done, 400);
+        } else { setTimeout(() => { flipped.forEach(c => c.classList.remove('flipped')); flipped = []; lock = false; }, 900); }
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+
+// ===== GAME 3: MATH BLITZ =====
+function buildMath(area, done) {
+  const TOTAL = 5; let correct = 0, timeLeft, interval;
+  function nextQ() {
+    if (correct >= TOTAL) { done(); return; }
+    clearInterval(interval); timeLeft = 6;
+    const a = Math.floor(Math.random()*12)+1, b = Math.floor(Math.random()*12)+1;
+    const ops = ['+','-','×'], op = ops[Math.floor(Math.random()*3)];
+    let ans = op==='+' ? a+b : op==='-' ? a-b : a*b;
+    const wrongs = new Set();
+    while(wrongs.size<3) { let w=ans+Math.floor(Math.random()*20)-10; if(w!==ans) wrongs.add(w); }
+    const opts = [...wrongs, ans].sort(()=>Math.random()-0.5);
+    area.innerHTML = `
+      <div class="math-score">✅ ${correct} / ${TOTAL}</div>
+      <div class="progress-bar"><div class="progress-fill" id="mtf" style="width:100%;background:linear-gradient(90deg,var(--accent3),var(--accent2))"></div></div>
+      <div class="math-problem" id="math-q">${a} ${op} ${b} = ?</div>
+      <div class="math-options">${opts.map(o=>`<button class="math-opt" onclick="mathAns(${o},${ans})">${o}</button>`).join('')}</div>`;
+    interval = setInterval(() => {
+      timeLeft -= 0.1;
+      const f = document.getElementById('mtf'); if(f) f.style.width=(timeLeft/6*100)+'%';
+      if (timeLeft <= 0) { clearInterval(interval); setTimeout(nextQ, 600); }
+    }, 100);
+  }
+  window.mathAns = (chosen, ans) => {
+    clearInterval(interval);
+    document.querySelectorAll('.math-opt').forEach(b => {
+      b.onclick = null;
+      if (parseInt(b.textContent)===ans) b.classList.add('correct');
+      else if (parseInt(b.textContent)===chosen && chosen!==ans) b.classList.add('wrong');
+    });
+    if (chosen===ans) correct++;
+    setTimeout(nextQ, 700);
+  };
+  nextQ();
+}
+
+// ===== GAME 4: WORD SCRAMBLE =====
+function buildScramble(area, done) {
+  const words = [{ word:'PUZZLE', hint:'A brain teaser' },{ word:'ROCKET', hint:'Goes to space 🚀' },{ word:'JUNGLE', hint:'Dense forest' }];
+  let idx = 0;
+  function scramble(w) { let a=w.split(''); do{a.sort(()=>Math.random()-0.5);}while(a.join('')===w); return a.join(''); }
+  function showWord() {
+    if (idx>=words.length) { done(); return; }
+    const {word,hint} = words[idx];
+    area.innerHTML = `
+      <div class="scramble-progress">Word ${idx+1} of ${words.length}</div>
+      <div class="scramble-word">${scramble(word)}</div>
+      <div class="scramble-hint">Hint: ${hint}</div>
+      <input class="scramble-input" id="sc-inp" maxlength="${word.length}" placeholder="Type answer" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn-game" style="background:linear-gradient(135deg,var(--accent5),#9d4edd);color:white" onclick="checkSc('${word}')">Submit ✓</button>`;
+    const inp = document.getElementById('sc-inp'); inp.focus();
+    inp.addEventListener('keydown', e => { if(e.key==='Enter') checkSc(word); });
+  }
+  window.checkSc = (word) => {
+    const val = document.getElementById('sc-inp').value.trim().toUpperCase();
+    if (val===word) { document.getElementById('sc-inp').classList.add('correct'); idx++; setTimeout(showWord,600); }
+    else { const i=document.getElementById('sc-inp'); i.classList.add('wrong'); setTimeout(()=>i.classList.remove('wrong'),400); }
+  };
+  showWord();
+}
+
+// ===== GAME 5: REACTION TEST =====
+function buildReaction(area, done) {
+  const GOAL = 8; let hits = 0, dotTimer, dot;
+  area.innerHTML = `
+    <div class="reaction-score" id="react-score">0 / ${GOAL}</div>
+    <div style="font-size:14px;color:rgba(240,240,255,0.5)">Tap the target when it appears!</div>
+    <div class="reaction-arena" id="react-arena"></div>`;
+  const arena = document.getElementById('react-arena');
+  function spawnDot() {
+    if(dot) dot.remove();
+    const x=Math.random()*(arena.clientWidth-70), y=Math.random()*(arena.clientHeight-70);
+    dot=document.createElement('div'); dot.className='reaction-dot';
+    dot.style.left=x+'px'; dot.style.top=y+'px'; dot.textContent='⚡';
+    dot.onclick=(e)=>{ e.stopPropagation(); hits++;
+      document.getElementById('react-score').textContent=`${hits} / ${GOAL}`;
+      dot.remove(); dot=null;
+      if(hits>=GOAL){clearTimeout(dotTimer);setTimeout(done,300);}
+      else dotTimer=setTimeout(spawnDot,400+Math.random()*600); };
+    arena.appendChild(dot);
+    dotTimer=setTimeout(()=>{if(dot){dot.remove();dot=null;dotTimer=setTimeout(spawnDot,300);}},1800);
+  }
+  setTimeout(spawnDot, 600);
+}
+
+// ===== CONFETTI =====
+function spawnConfetti() {
+  const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div'); el.className='confetti-piece';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.setProperty('--dur',(2+Math.random()*2)+'s');
+    el.style.animationDelay=(Math.random()*1.5)+'s';
+    el.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    document.body.appendChild(el);
+    el.addEventListener('animationend',()=>el.remove());
+  }
+}
+
+// ===== STARS =====
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); s.className='star';
+    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%';
+    s.style.setProperty('--dur',(2+Math.random()*4)+'s');
+    s.style.animationDelay=(Math.random()*5)+'s';
+    s.style.width=s.style.height=(1+Math.random()*2)+'px';
+    c.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

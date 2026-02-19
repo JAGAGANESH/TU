@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Admin — Engagement Mania Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090f;
+    --card: #0f1220;
+    --border: rgba(255,255,255,0.07);
+    --accent1: #ff6b6b;
+    --accent2: #ffd93d;
+    --accent3: #6bcb77;
+    --accent4: #4d96ff;
+    --accent5: #c77dff;
+    --text: #e8eaf6;
+    --sub: rgba(232,234,246,0.45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== LOGIN ===== */
+  #login-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; gap: 24px; padding: 24px;
+    background: radial-gradient(ellipse at 50% 30%, #0a0a20 0%, var(--bg) 70%);
+  }
+
+  .login-box {
+    width: 100%; max-width: 400px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 24px; padding: 36px;
+    display: flex; flex-direction: column; gap: 20px;
+    box-shadow: 0 0 60px rgba(77,150,255,0.08);
+  }
+
+  .login-logo { font-size: 56px; text-align: center; }
+  .login-title {
+    font-family: 'Boogaloo', cursive; font-size: 30px; text-align: center;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .login-sub { font-size: 13px; color: var(--sub); text-align: center; margin-top: -10px; }
+
+  .login-input {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px;
+    color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px;
+    padding: 14px 16px; outline: none; transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: var(--accent4); }
+  .login-input.error { border-color: var(--accent1); }
+
+  .btn-login {
+    font-family: 'Boogaloo', cursive; font-size: 20px; padding: 14px;
+    border: none; border-radius: 12px; width: 100%;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    color: white; cursor: pointer; letter-spacing: 1px; transition: opacity 0.15s;
+  }
+  .btn-login:hover { opacity: 0.9; }
+
+  .login-error {
+    font-size: 13px; color: var(--accent1); text-align: center; display: none;
+  }
+
+  /* ===== ADMIN PANEL ===== */
+  #admin-panel { display: none; }
+
+  .topbar {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 16px 24px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-title {
+    font-family: 'Boogaloo', cursive; font-size: 22px;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    flex: 1;
+  }
+  .btn-logout {
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 8px 16px; border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 8px; background: transparent; color: var(--sub); cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-logout:hover { border-color: var(--accent1); color: var(--accent1); }
+
+  .btn-refresh {
+    font-size: 18px; background: rgba(77,150,255,0.1); border: 1.5px solid rgba(77,150,255,0.3);
+    border-radius: 8px; width: 36px; height: 36px; cursor: pointer; color: var(--accent4);
+    display: flex; align-items: center; justify-content: center; transition: transform 0.3s;
+  }
+  .btn-refresh.spin { transform: rotate(360deg); }
+
+  .admin-body { padding: 24px; max-width: 900px; margin: 0 auto; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; text-align: center;
+  }
+  .stat-val { font-family: 'Boogaloo', cursive; font-size: 36px; }
+  .stat-label { font-size: 11px; color: var(--sub); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* FILTERS */
+  .filter-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-input {
+    flex: 1; min-width: 150px; background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.2s;
+  }
+  .filter-input:focus { border-color: var(--accent4); }
+
+  .btn-clear {
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px;
+    padding: 10px 16px; border: 1.5px solid rgba(255,107,107,0.3);
+    border-radius: 10px; background: rgba(255,107,107,0.08); color: var(--accent1);
+    cursor: pointer; transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-clear:hover { background: rgba(255,107,107,0.18); }
+
+  /* LEADERBOARD */
+  .section-title {
+    font-family: 'Boogaloo', cursive; font-size: 20px; color: var(--sub);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+  }
+
+  .leaderboard { display: flex; flex-direction: column; gap: 10px; }
+
+  .entry-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px 20px; display: flex; align-items: center; gap: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: slideIn 0.4s ease;
+  }
+  .entry-card:hover { border-color: rgba(77,150,255,0.3); transform: translateX(3px); }
+  .entry-card.gold { border-color: rgba(255,217,61,0.4); background: linear-gradient(135deg, rgba(255,217,61,0.05), var(--card)); }
+  .entry-card.silver { border-color: rgba(200,200,220,0.3); }
+  .entry-card.bronze { border-color: rgba(205,127,50,0.3); }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+
+  .entry-rank {
+    font-family: 'Boogaloo', cursive; font-size: 26px;
+    min-width: 48px; text-align: center;
+  }
+
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-name { font-weight: 900; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-team { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .entry-time { font-size: 11px; color: var(--sub); margin-top: 4px; }
+
+  .entry-answer {
+    display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; align-items: center;
+  }
+  .answer-chip {
+    font-family: 'Boogaloo', cursive; font-size: 14px;
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .answer-correct { border-color: var(--accent3); color: var(--accent3); background: rgba(107,203,119,0.08); }
+  .answer-wrong   { border-color: var(--accent1); color: var(--accent1); background: rgba(255,107,107,0.08); }
+
+  .entry-score {
+    font-family: 'Boogaloo', cursive; font-size: 20px; color: var(--accent2);
+    min-width: 36px; text-align: right;
+  }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--sub);
+  }
+  .empty-state .big { font-size: 56px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  /* DELETE BTN */
+  .btn-delete {
+    background: none; border: none; color: rgba(255,107,107,0.4); cursor: pointer;
+    font-size: 16px; padding: 4px; border-radius: 6px; transition: color 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-delete:hover { color: var(--accent1); }
+
+  /* ANSWER BADGE */
+  .entry-answer-str {
+    font-family: 'Boogaloo', cursive; font-size: 13px; letter-spacing: 3px;
+    color: var(--accent2); background: rgba(255,217,61,0.08);
+    border: 1px solid rgba(255,217,61,0.2); border-radius: 8px;
+    padding: 4px 10px; margin-top: 4px; display: inline-block;
+  }
+
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .stat-val { font-size: 26px; }
+    .entry-card { padding: 12px 14px; gap: 10px; }
+    .entry-rank { font-size: 20px; min-width: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🛡️</div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">Engagement Mania Leaderboard</div>
+    <input class="login-input" id="login-pass" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="login-error">❌ Incorrect password</div>
+    <div style="font-size:11px;color:rgba(232,234,246,0.25);text-align:center">Default password: <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px">admin123</code></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <div class="topbar">
+    <div class="topbar-title">🎮 Engagement Mania — Admin</div>
+    <button class="btn-refresh" id="refresh-btn" onclick="refreshData()" title="Refresh">↻</button>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-total" style="color:var(--accent4)">0</div>
+        <div class="stat-label">Total Entries</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-teams" style="color:var(--accent5)">0</div>
+        <div class="stat-label">Teams</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-perfect" style="color:var(--accent3)">0</div>
+        <div class="stat-label">Perfect Codes</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-row">
+      <input class="filter-input" id="filter-search" placeholder="🔍 Search name or team..." oninput="renderLeaderboard()">
+      <button class="btn-clear" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+
+    <div class="section-title">📋 Submissions — Timeline</div>
+    <div class="leaderboard" id="leaderboard"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'em_submissions_v2';
+const ADMIN_PASS = 'admin123';
+const CORRECT_ANSWER = 'TAMENIACGO'; // T A M E N I A ! G O
+
+function getSubmissions() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+function saveSubmissions(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+// ===== LOGIN =====
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (pass === ADMIN_PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    refreshData();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('login-pass').classList.add('error');
+    setTimeout(() => {
+      err.style.display = 'none';
+      document.getElementById('login-pass').classList.remove('error');
+    }, 2000);
+  }
+}
+
+function doLogout() {
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+}
+
+// ===== REFRESH =====
+function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spin');
+  setTimeout(() => btn.classList.remove('spin'), 400);
+  updateStats();
+  renderLeaderboard();
+}
+
+// ===== STATS =====
+function updateStats() {
+  const list = getSubmissions();
+  const teams = new Set(list.map(e => e.team.toLowerCase()));
+  const perfect = list.filter(e => (e.answer||'').toUpperCase().replace(/\s/g,'') === CORRECT_ANSWER).length;
+  document.getElementById('stat-total').textContent = list.length;
+  document.getElementById('stat-teams').textContent = teams.size;
+  document.getElementById('stat-perfect').textContent = perfect;
+}
+
+// ===== LEADERBOARD =====
+function scoreEntry(e) {
+  const ans = (e.answer||'').toUpperCase().replace(/\s/g,'');
+  let score = 0;
+  for (let i=0; i<CORRECT_ANSWER.length && i<ans.length; i++) {
+    if (ans[i] === CORRECT_ANSWER[i]) score++;
+  }
+  return score;
+}
+
+function renderLeaderboard() {
+  const list = getSubmissions();
+  const query = document.getElementById('filter-search').value.toLowerCase();
+
+  let filtered = list.filter(e =>
+    e.name.toLowerCase().includes(query) ||
+    e.team.toLowerCase().includes(query)
+  );
+
+  // Sort by: score desc, then timestamp asc (earliest submission wins)
+  filtered.sort((a, b) => {
+    const sa = scoreEntry(a), sb = scoreEntry(b);
+    if (sb !== sa) return sb - sa;
+    return a.timestamp - b.timestamp;
+  });
+
+  const board = document.getElementById('leaderboard');
+
+  if (filtered.length === 0) {
+    board.innerHTML = `
+      <div class="empty-state">
+        <div class="big">${list.length === 0 ? '📭' : '🔍'}</div>
+        <p>${list.length === 0 ? 'No submissions yet. Players will appear here once they submit.' : 'No results match your search.'}</p>
+      </div>`;
+    return;
+  }
+
+  board.innerHTML = '';
+  filtered.forEach((entry, idx) => {
+    const rank = idx + 1;
+    const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+    const cardClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+    const score = scoreEntry(entry);
+    const isPerfect = score === CORRECT_ANSWER.length;
+
+    // Answer chips
+    const ans = (entry.answer || '').toUpperCase().replace(/\s/g, '');
+    let chips = '';
+    for (let i = 0; i < CORRECT_ANSWER.length; i++) {
+      const ch = ans[i] || '?';
+      const correct = ch === CORRECT_ANSWER[i];
+      chips += `<div class="answer-chip ${correct ? 'answer-correct' : 'answer-wrong'}" title="Game ${i+1}: ${correct ? '✓ Correct' : '✗ Wrong'}">${ch}</div>`;
+    }
+
+    const date = new Date(entry.timestamp);
+    const timeAgo = formatTimeAgo(entry.timestamp);
+    const fullTime = date.toLocaleString();
+
+    const card = document.createElement('div');
+    card.className = `entry-card ${cardClass}`;
+    card.innerHTML = `
+      <div class="entry-rank">${rankEmoji}</div>
+      <div class="entry-info">
+        <div class="entry-name">${escHtml(entry.name)} ${isPerfect ? '⭐' : ''}</div>
+        <div class="entry-team">👥 ${escHtml(entry.team)}</div>
+        <div class="entry-time" title="${fullTime}">🕐 ${timeAgo} · ${fullTime}</div>
+        <div class="entry-answer-str">${ans || '—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="entry-score" title="${score}/${CORRECT_ANSWER.length} correct">${score}/${CORRECT_ANSWER.length}</div>
+        <div class="entry-answer">${chips}</div>
+        <button class="btn-delete" onclick="deleteEntry(${list.indexOf(entry)})" title="Delete entry">🗑</button>
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+
+function deleteEntry(originalIdx) {
+  if (!confirm('Delete this submission?')) return;
+  const list = getSubmissions();
+  list.splice(originalIdx, 1);
+  saveSubmissions(list);
+  refreshData();
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL submissions? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  refreshData();
+}
+
+function formatTimeAgo(ts) {
+  const diff = Date.now() - ts;
+  const s = Math.floor(diff/1000);
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s/60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Auto-refresh every 15 seconds when panel is visible
+setInterval(() => {
+  if (document.getElementById('admin-panel').style.display !== 'none') refreshData();
+}, 15000);
+</script>
+</body>
+</html>
