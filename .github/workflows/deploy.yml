@@ -18,18 +18,18 @@ jobs:
 
       - name: Inject token into HTML
         run: |
-          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania.html
+          sed -i "s|YOUR_GITHUB_TOKEN_HERE|${{ secrets.SUBMISSIONS_TOKEN }}|g" engagement-mania-v8.html
 
       - name: Verify injection & test token against GitHub API
         run: |
-          if grep -q "YOUR_GITHUB_TOKEN_HERE" engagement-mania.html; then
+          if grep -q "YOUR_GITHUB_TOKEN_HERE" engagement-mania-v8.html; then
             echo "❌ FAILED: Placeholder still present — secret name wrong"
             exit 1
           fi
           echo "✅ Placeholder replaced"
 
           # Extract injected token from HTML
-          TOKEN=$(grep -oP "(?<=GITHUB_TOKEN  = ').*?(?=')" engagement-mania.html)
+          TOKEN=$(grep -oP "(?<=GITHUB_TOKEN  = ').*?(?=')" engagement-mania-v8.html)
           echo "Token length: ${#TOKEN} chars"
           echo "Token prefix: ${TOKEN:0:4}"
 
