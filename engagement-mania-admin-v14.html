@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Admin — Engagement Mania</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#07090f;--card:#0f1220;--border:rgba(255,255,255,0.07);--a1:#ff6b6b;--a2:#ffd93d;--a3:#6bcb77;--a4:#4d96ff;--a5:#c77dff;--text:#e8eaf6;--sub:rgba(232,234,246,0.45)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* LOGIN */
+  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,#0a0a20,var(--bg))}
+  .box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px;display:flex;flex-direction:column;gap:14px}
+  .logo{font-size:52px;text-align:center}
+  .title{font-family:'Boogaloo',cursive;font-size:28px;text-align:center;background:linear-gradient(135deg,var(--a4),var(--a5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .sub{font-size:13px;color:var(--sub);text-align:center}
+  .lbl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase}
+  input.field{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:11px;color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;padding:12px 14px;outline:none;transition:border-color .2s}
+  input.field:focus{border-color:var(--a4)}
+  input.field.err{border-color:var(--a1);animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .btn-main{font-family:'Boogaloo',cursive;font-size:19px;padding:13px;border:none;border-radius:12px;width:100%;background:linear-gradient(135deg,var(--a4),var(--a5));color:#fff;cursor:pointer;letter-spacing:1px}
+  .err-msg{font-size:13px;color:var(--a1);text-align:center;display:none}
+  .note{font-size:11px;color:rgba(232,234,246,0.3);line-height:1.7}
+  .note b{color:var(--a2)}
+  .hint{font-size:11px;color:rgba(232,234,246,0.2);text-align:center}
+  .hint code{background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px}
+
+  /* ADMIN */
+  #admin-panel{display:none}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+  .top-title{font-family:'Boogaloo',cursive;font-size:19px;background:linear-gradient(135deg,var(--a4),var(--a5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex:1}
+  .badge{font-size:11px;color:var(--sub);background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:4px 8px;white-space:nowrap}
+  .icon-btn{font-size:17px;background:rgba(77,150,255,0.1);border:1.5px solid rgba(77,150,255,0.3);border-radius:8px;width:34px;height:34px;cursor:pointer;color:var(--a4);display:flex;align-items:center;justify-content:center;transition:transform .5s;flex-shrink:0}
+  .icon-btn.spin{transform:rotate(360deg)}
+  .logout-btn{font-size:12px;font-weight:700;padding:7px 12px;border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent;color:var(--sub);cursor:pointer}
+  .logout-btn:hover{border-color:var(--a1);color:var(--a1)}
+
+  .body{padding:18px;max-width:800px;margin:0 auto}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .sc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center}
+  .sv{font-family:'Boogaloo',cursive;font-size:34px}
+  .sl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+  .search-row{margin-bottom:16px}
+  .search-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s}
+  .search-input:focus{border-color:var(--a4)}
+
+  .sec-title{font-family:'Boogaloo',cursive;font-size:16px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+  .board{display:flex;flex-direction:column;gap:8px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;animation:fadeUp .3s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .card.gold{border-color:rgba(255,217,61,0.4);background:linear-gradient(135deg,rgba(255,217,61,0.05),var(--card))}
+  .card.silver{border-color:rgba(200,200,220,0.3)}
+  .card.bronze{border-color:rgba(205,127,50,0.3)}
+  .rank{font-family:'Boogaloo',cursive;font-size:22px;min-width:40px;text-align:center}
+  .info{flex:1;min-width:0}
+  .ename{font-weight:900;font-size:15px}
+  .eteam{font-size:12px;color:var(--sub);margin-top:1px}
+  .etime{font-size:11px;color:var(--sub);margin-top:2px}
+  .eans{font-family:'Boogaloo',cursive;font-size:12px;letter-spacing:2px;color:var(--a2);background:rgba(255,217,61,0.08);border:1px solid rgba(255,217,61,0.2);border-radius:5px;padding:1px 7px;margin-top:3px;display:inline-block}
+
+  .empty{text-align:center;padding:48px 20px;color:var(--sub)}
+  .empty .ico{font-size:46px;margin-bottom:10px}
+  .loading{text-align:center;padding:48px 20px;color:var(--sub)}
+  .spinner{width:36px;height:36px;border-radius:50%;border:3px solid rgba(77,150,255,0.15);border-top-color:var(--a4);animation:spin .8s linear infinite;margin:0 auto 12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="box">
+    <div class="logo">🛡️</div>
+    <div class="title">Admin Panel</div>
+    <div class="sub">Engagement Mania</div>
+
+    <div class="lbl">📊 Google Sheet CSV URL</div>
+    <input class="field" id="cfg-sheet" placeholder="https://docs.google.com/spreadsheets/d/e/...">
+    <div class="note">
+      <b>How to get this URL:</b><br>
+      1. Open the Google Sheet linked to your Form<br>
+      2. File → Share → <b>Publish to web</b><br>
+      3. Pick your sheet → format <b>CSV</b> → Publish<br>
+      4. Copy the URL and paste above
+    </div>
+
+    <div class="lbl">🔑 Admin Password</div>
+    <input class="field" id="login-pass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-main" onclick="doLogin()">Sign In →</button>
+    <div class="err-msg" id="login-err">❌ Incorrect password</div>
+    <div class="hint">Default: <code>admin123</code></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-panel">
+  <div class="topbar">
+    <div class="top-title">🎮 Engagement Mania</div>
+    <div class="badge" id="badge">Refresh: 10s</div>
+    <button class="icon-btn" id="spin-btn" onclick="manualRefresh()">↻</button>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+
+  <div class="body">
+    <div class="stats">
+      <div class="sc"><div class="sv" id="s-total" style="color:var(--a4)">0</div><div class="sl">Total</div></div>
+      <div class="sc"><div class="sv" id="s-teams" style="color:var(--a5)">0</div><div class="sl">Teams</div></div>
+      <div class="sc"><div class="sv" id="s-last"  style="color:var(--a3);font-size:16px">—</div><div class="sl">Latest</div></div>
+    </div>
+
+    <div class="search-row">
+      <input class="search-input" id="search" placeholder="🔍 Search name or team..." oninput="render()">
+    </div>
+
+    <div class="sec-title">📋 Submissions</div>
+    <div class="board" id="board">
+      <div class="loading"><div class="spinner"></div>Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASS    = 'admin123';
+const CFG_KEY = 'em_sheet_url';
+
+// State
+let entries    = [];      // full list, always grows, never shrinks
+let seenKeys   = new Set();
+let url        = localStorage.getItem(CFG_KEY) || '';
+let tick       = 10;
+let timer      = null;
+
+// Pre-fill saved URL
+if (url) document.getElementById('cfg-sheet').value = url;
+
+// ── LOGIN ──
+function doLogin() {
+  const pass    = document.getElementById('login-pass').value;
+  const sheetUrl = document.getElementById('cfg-sheet').value.trim();
+
+  if (pass !== PASS) {
+    const e = document.getElementById('login-err');
+    e.style.display = 'block';
+    document.getElementById('login-pass').classList.add('err');
+    setTimeout(() => { e.style.display = 'none'; document.getElementById('login-pass').classList.remove('err'); }, 2000);
+    return;
+  }
+  if (!sheetUrl) { alert('Please paste your Google Sheet CSV URL first.'); return; }
+
+  url = sheetUrl;
+  localStorage.setItem(CFG_KEY, url);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display  = 'block';
+  fetchData();
+  startTimer();
+}
+
+function doLogout() {
+  clearInterval(timer);
+  entries  = [];
+  seenKeys = new Set();
+  document.getElementById('admin-panel').style.display  = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('board').innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+}
+
+// ── FETCH ──
+async function fetchData() {
+  try {
+    const base     = url.split('?')[0];
+    const csvUrl   = base + '?output=csv&t=' + Date.now();
+
+    // Use CORS proxy since Google Sheets blocks direct browser requests
+    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl);
+
+    const res  = await fetch(proxyUrl, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const text = await res.text();
+    if (!text || text.trim().length === 0) throw new Error('Empty response');
+
+    parseAndMerge(text);
+    updateStats();
+    render();
+    document.getElementById('badge').title = 'Last updated: ' + new Date().toLocaleTimeString();
+
+  } catch(e) {
+    console.error('Fetch error:', e);
+    document.getElementById('badge').title = 'Error: ' + e.message;
+    if (entries.length === 0) {
+      document.getElementById('board').innerHTML =
+        '<div class="empty"><div class="ico">⚠️</div>' +
+        '<p><b>' + x(e.message) + '</b><br><br>' +
+        'Make sure your sheet URL contains <b>/pub?</b><br>' +
+        'and is published as CSV in Google Sheets.</p></div>';
+    }
+  }
+}
+
+function manualRefresh() {
+  const btn = document.getElementById('spin-btn');
+  btn.classList.add('spin');
+  setTimeout(() => btn.classList.remove('spin'), 600);
+  tick = 10;
+  fetchData();
+}
+
+// ── PARSE & MERGE ──
+// Google Forms CSV columns: Timestamp, Name, Team, Answer
+function parseAndMerge(csv) {
+  const lines = csv.trim().split('\n');
+  if (lines.length < 2) return; // only header or empty
+
+  // Parse all rows from CSV (skip header line 0)
+  const fresh = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // Properly split CSV respecting quoted fields
+    const cols = splitCSV(line);
+    const timeStr = (cols[0] || '').trim();
+    const name    = (cols[1] || '').trim();
+    const team    = (cols[2] || '').trim();
+    const answer  = (cols[3] || '').trim().toUpperCase();
+
+    if (!name && !team) continue; // skip blank rows
+
+    const key = timeStr + '|' + name + '|' + team;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      entries.push({ timeStr, name, team, answer });
+    }
+  }
+}
+
+// Properly parse a single CSV line with quoted fields
+function splitCSV(line) {
+  const result = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuote = !inQuote;
+    } else if (ch === ',' && !inQuote) {
+      result.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── STATS ──
+function updateStats() {
+  const teams = new Set(entries.map(e => e.team.toLowerCase().trim()).filter(Boolean));
+  document.getElementById('s-total').textContent = entries.length;
+  document.getElementById('s-teams').textContent = teams.size;
+  // Latest entry = last in array (chronological order)
+  if (entries.length > 0) {
+    const last     = entries[entries.length - 1];
+    const timePart = last.timeStr.includes(' ') ? last.timeStr.split(' ')[1] : last.timeStr;
+    document.getElementById('s-last').textContent = timePart || last.timeStr;
+  }
+}
+
+// ── RENDER ──
+function render() {
+  const q     = document.getElementById('search').value.toLowerCase().trim();
+  // Show newest first
+  const list  = [...entries].filter(e =>
+    !q || e.name.toLowerCase().includes(q) || e.team.toLowerCase().includes(q)
+  );
+
+  const board = document.getElementById('board');
+
+  if (list.length === 0) {
+    board.innerHTML = entries.length === 0
+      ? '<div class="empty"><div class="ico">📭</div><p>No submissions yet.<br>Waiting for players...</p></div>'
+      : '<div class="empty"><div class="ico">🔍</div><p>No results match your search.</p></div>';
+    return;
+  }
+
+  board.innerHTML = '';
+  list.forEach((e, i) => {
+    const rank  = i + 1;
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
+    const cls   = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+
+    const card  = document.createElement('div');
+    card.className = 'card ' + cls;
+    card.innerHTML =
+      '<div class="rank">' + medal + '</div>' +
+      '<div class="info">' +
+        '<div class="ename">' + x(e.name) + '</div>' +
+        '<div class="eteam">👥 ' + x(e.team) + '</div>' +
+        '<div class="etime">🕐 ' + x(e.timeStr) + '</div>' +
+        (e.answer ? '<div class="eans">' + x(e.answer) + '</div>' : '') +
+      '</div>';
+    board.appendChild(card);
+  });
+}
+
+// ── TIMER ──
+function startTimer() {
+  clearInterval(timer);
+  tick  = 10;
+  timer = setInterval(() => {
+    tick--;
+    document.getElementById('badge').textContent = 'Refresh: ' + tick + 's';
+    if (tick <= 0) {
+      tick = 10;
+      fetchData();
+    }
+  }, 1000);
+}
+
+// HTML escape
+function x(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
